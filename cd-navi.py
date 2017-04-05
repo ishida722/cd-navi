@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import posixpath
+import click
 
 class Navigator:
     def __init__(self, jsondb):
@@ -45,21 +46,31 @@ class Driver:
         self.GoToProjectRoot()
         self.projectRoot = self.cwd()
 
-args = sys.argv
-driver = Driver()
-all_path = driver.currentDir
+@click.command()
+@click.argument('key')
+@click.option('--trueroot', '-t', is_flag=True)
+def cmd(key, trueroot):
+    driver = Driver()
+    all_path = driver.currentDir
+    if trueroot:
+        driver.MakeTrueRootPath()
+        root_path = driver.trueRoot
+    else:
+        root_path = driver.projectRoot
 
-if(len(args) < 2):
+    db = posixpath.join(root_path, '.fcdindex.json')
+    json_file = open(db, 'r')
+    navigator = Navigator(json_file)
+    json_file.close()
+
+    if(navigator.IsHit(key)):
+        all_path = posixpath.join(root_path, navigator.destination)
+
     print(all_path)
     sys.exit()
 
-db = posixpath.join(driver.projectRoot, '.fcdindex.json')
-json_file = open(db, 'r')
-navigator = Navigator(json_file)
-json_file.close()
+def main():
+    cmd()
 
-if(navigator.IsHit(args[1])):
-    all_path = posixpath.join(driver.projectRoot, navigator.destination)
-
-print(all_path)
-sys.exit()
+if __name__ == '__main__':
+    main()
