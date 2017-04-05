@@ -1,20 +1,18 @@
 import os
 import json
+import posixpath
 
-class Destination:
-    def __init__(self, path):
-        self.path = path
-        self.keys = []
-
-    def AddKey(self, key):
-        self.keys.append(key)
+class Navigator:
+    def __init__(self, jsondb):
+        self.db = json.loads(jsondb)
+        self.destination = None
 
     def IsHit(self, word):
-        if(word in self.keys): return True
+        self.destination = None
+        if(word in self.db):
+            self.destination = self.db[word]
+            return True
         else: return False
-
-    def SetKyeList(self, keyList):
-        slef.keys = keyList
 
 def UpCd():
     os.chdir('..')
@@ -25,13 +23,7 @@ def ProjectRoot():
         if('.svn' in ls): break
         if('.git' in ls): break
         UpCd()
-
-def MakeDestinations():
-    i130 = Destination('C1000_Deliverables/0100_ContInfo/0130_PreDsgnVerif')
-    i130.AddKey('sekkei')
-    i130.AddKey('predsgn')
-    i130.AddKey('130')
-    return i130
+    return os.getcwd()
 
 json_string = '''
  {
@@ -80,8 +72,12 @@ json_string = '''
  }
 '''
 
-
-print(json.dumps(json_string))
-print(MakeDestinations().IsHit('sekkei'))
 # ProjectRoot()
 # print(os.getcwd())
+navigator = Navigator(json_string)
+navigator.IsHit('sekkei')
+# desti = os.path.abspath(navigator.destination)
+# print(desti)
+print(navigator.destination)
+print(ProjectRoot())
+print(posixpath.join(os.getcwd().replace(os.path.sep, '/'), "C2000_*/C2400_*" ))
