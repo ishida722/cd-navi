@@ -27,13 +27,18 @@ class Driver:
     def UpCd(self):
         os.chdir('..')
 
-    def GoToProjectRoot(self):
+    def chdir(path):
+        os.chdir(path)
+
+    def GoToRoot(self):
         while(True):
             ls = os.listdir('.')
             if('.svn' in ls): break
             elif('.git' in ls): break
-            elif('.root' in ls): break
+            elif(self.cwd()==self.home): break
+            elif(self.cwd()=='/'): break
             self.UpCd()
+        self.currentDir = self.cwd()
 
     def GoToTrueRoot(self):
         os.chdir(os.path.expanduser('~'))
@@ -44,52 +49,39 @@ class Driver:
 
     def __init__(self):
         self.currentDir = self.cwd()
-        self.GoToProjectRoot()
-        self.projectRoot = self.cwd()
+        self.home = os.path.expanduser('~')
 
-def MakeCommand(initPath, word):
+def MakeCommand(initPath, key):
     driver = Driver()
-    driver.os.chdir(initPath)
-    if trueroot:
-        driver.MakeTrueRootPath()
-        root_path = driver.trueRoot
-    db = posixpath.join(root_path, '.fcdindex.json')
-    json_file = open(db, 'r')
-    navigator = Navigator(json_file)
-    json_file.close()
+    driver.chdir(initPath)
+    driver.GoToRoot()
 
-    if(navigator.IsRoot(key)):
-        all_path = posixpath.join(root_path)
-    elif(navigator.IsHit(key)):
-        all_path = posixpath.join(root_path, navigator.destination)
+    db = posixpath.join(driver.currentDir, '.fcdindex.json')
+    with open(db, 'r') as json_filer:
+        navigator = Navigator(json_file)
 
-    return 'cd ' + all_path
+    if(navigator.IsHit(key)):
+        all_path = posixpath.join(driver.currentDir, navigator.destination)
+    else:
+        all_path = initPath
+
+    return 'cd ' + all_path + '\n'
 
 @click.command()
 @click.argument('key')
 @click.option('--trueroot', '-t')
 def cmd(key, trueroot):
-    driver = Driver()
-    all_path = driver.currentDir
+    current = os.path.expanduser('~')
+    home = os.path.expanduser('~')
     commands =[]
 
     if trueroot:
-        driver.MakeTrueRootPath()
-        root_path = driver.trueRoot
-    else:
-        root_path = driver.projectRoot
+        commands.append(MakeCommand(home, trueroot))
+    commands.append(MakeCommand(current, key))
 
-    db = posixpath.join(root_path, '.fcdindex.json')
-    json_file = open(db, 'r')
-    navigator = Navigator(json_file)
-    json_file.close()
+    for command in commands:
+        print(command)
 
-    if(navigator.IsRoot(key)):
-        all_path = posixpath.join(root_path)
-    elif(navigator.IsHit(key)):
-        all_path = posixpath.join(root_path, navigator.destination)
-
-    print('cd ' + all_path)
     sys.exit()
 
 def main():
