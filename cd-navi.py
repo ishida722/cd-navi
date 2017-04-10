@@ -9,6 +9,10 @@ class Navigator:
         self.db = json.load(jsondb)
         self.destination = None
 
+    def IsRoot(self, word):
+        if word=='root': return True
+        if word=='r'   : return True
+
     def IsHit(self, word):
         self.destination = None
         if(word in self.db):
@@ -43,12 +47,32 @@ class Driver:
         self.GoToProjectRoot()
         self.projectRoot = self.cwd()
 
+def MakeCommand(initPath, word):
+    driver = Driver()
+    driver.os.chdir(initPath)
+    if trueroot:
+        driver.MakeTrueRootPath()
+        root_path = driver.trueRoot
+    db = posixpath.join(root_path, '.fcdindex.json')
+    json_file = open(db, 'r')
+    navigator = Navigator(json_file)
+    json_file.close()
+
+    if(navigator.IsRoot(key)):
+        all_path = posixpath.join(root_path)
+    elif(navigator.IsHit(key)):
+        all_path = posixpath.join(root_path, navigator.destination)
+
+    return 'cd ' + all_path
+
 @click.command()
 @click.argument('key')
-@click.option('--trueroot', '-t', is_flag=True)
+@click.option('--trueroot', '-t')
 def cmd(key, trueroot):
     driver = Driver()
     all_path = driver.currentDir
+    commands =[]
+
     if trueroot:
         driver.MakeTrueRootPath()
         root_path = driver.trueRoot
@@ -60,7 +84,9 @@ def cmd(key, trueroot):
     navigator = Navigator(json_file)
     json_file.close()
 
-    if(navigator.IsHit(key)):
+    if(navigator.IsRoot(key)):
+        all_path = posixpath.join(root_path)
+    elif(navigator.IsHit(key)):
         all_path = posixpath.join(root_path, navigator.destination)
 
     print('cd ' + all_path)
