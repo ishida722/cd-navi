@@ -32,10 +32,7 @@ class Driver:
             self.UpCd()
 
     def GoToTrueRoot(self):
-        while(True):
-            ls = os.listdir('.')
-            if('.root' in ls): break
-            self.UpCd()
+        os.chdir(os.path.expanduser('~'))
 
     def MakeTrueRootPath(self):
         self.GoToTrueRoot()
@@ -66,7 +63,7 @@ def cmd(key, trueroot):
     if(navigator.IsHit(key)):
         all_path = posixpath.join(root_path, navigator.destination)
 
-    print(all_path)
+    print('cd ' + all_path)
     sys.exit()
 
 def main():
