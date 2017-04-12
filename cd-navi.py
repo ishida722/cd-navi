@@ -27,7 +27,7 @@ class Driver:
     def UpCd(self):
         os.chdir('..')
 
-    def chdir(path):
+    def chdir(self, path):
         os.chdir(path)
 
     def GoToRoot(self):
@@ -49,15 +49,15 @@ class Driver:
 
     def __init__(self):
         self.currentDir = self.cwd()
-        self.home = os.path.expanduser('~')
+        self.home = os.path.expanduser('~').replace(os.path.sep, '/')
 
-def MakeCommand(initPath, key):
+def MakePath(initPath, key):
     driver = Driver()
     driver.chdir(initPath)
     driver.GoToRoot()
 
     db = posixpath.join(driver.currentDir, '.fcdindex.json')
-    with open(db, 'r') as json_filer:
+    with open(db, 'r') as json_file:
         navigator = Navigator(json_file)
 
     if(navigator.IsHit(key)):
@@ -65,23 +65,21 @@ def MakeCommand(initPath, key):
     else:
         all_path = initPath
 
-    return 'cd ' + all_path + '\n'
+    return all_path
 
 @click.command()
 @click.argument('key')
 @click.option('--trueroot', '-t')
 def cmd(key, trueroot):
-    current = os.path.expanduser('~')
-    home = os.path.expanduser('~')
+    current = os.getcwd().replace(os.path.sep, '/')
+    home = os.path.expanduser('~').replace(os.path.sep, '/')
     commands =[]
 
     if trueroot:
-        commands.append(MakeCommand(home, trueroot))
-    commands.append(MakeCommand(current, key))
+        current = MakePath(home, trueroot)
+    current = MakePath(current, key)
 
-    for command in commands:
-        print(command)
-
+    print(current)
     sys.exit()
 
 def main():
