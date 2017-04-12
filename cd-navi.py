@@ -4,6 +4,13 @@ import json
 import posixpath
 import click
 
+def cwd():
+    return os.getcwd().replace(os.path.sep, '/')
+
+def GetHomePath():
+    return os.path.expanduser('~').replace(os.path.sep, '/')
+
+
 class Navigator:
     def __init__(self, jsondb):
         self.db = json.load(jsondb)
@@ -71,8 +78,8 @@ def MakePath(initPath, key):
 @click.argument('key')
 @click.option('--trueroot', '-t')
 def cmd(key, trueroot):
-    current = os.getcwd().replace(os.path.sep, '/')
-    home = os.path.expanduser('~').replace(os.path.sep, '/')
+    current = cwd()
+    home = GetHomePath()
     commands =[]
 
     if trueroot:
