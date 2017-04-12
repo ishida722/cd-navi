@@ -64,8 +64,11 @@ def MakePath(initPath, key):
     driver.GoToRoot()
 
     db = posixpath.join(driver.currentDir, '.fcdindex.json')
-    with open(db, 'r') as json_file:
-        navigator = Navigator(json_file)
+    try:
+        with open(db, 'r') as json_file:
+            navigator = Navigator(json_file)
+    except:
+        return initPath
 
     if(navigator.IsHit(key)):
         all_path = posixpath.join(driver.currentDir, navigator.destination)
@@ -80,7 +83,6 @@ def MakePath(initPath, key):
 def cmd(key, trueroot):
     current = cwd()
     home = GetHomePath()
-    commands =[]
 
     if trueroot:
         current = MakePath(home, trueroot)
